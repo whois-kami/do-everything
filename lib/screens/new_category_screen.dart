@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:todo_v2/blocs/blocs_export.dart';
-import 'package:todo_v2/models/task_model.dart';
 
-class AddNewTaskScreen extends StatefulWidget {
- const AddNewTaskScreen({super.key});
+class AddNewCategoryScreen extends StatefulWidget {
+  const AddNewCategoryScreen({super.key});
 
   @override
-  State<AddNewTaskScreen> createState() => _AddNewTaskScreenState();
+  State<AddNewCategoryScreen> createState() => _AddNewCategoryScreenState();
 }
 
-class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
+class _AddNewCategoryScreenState extends State<AddNewCategoryScreen> {
   final TextEditingController titleController = TextEditingController();
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,10 +46,10 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                     child: const Text('cancel')),
                 ElevatedButton(
                   onPressed: () {
-                    Task task = Task(
-                      title: titleController.text,
-                    );
-                    context.read<TaskBloc>().add(AddTaskEvent(task: task));
+                    var categoryName = titleController.text;
+                    context
+                        .read<CategoriesBloc>()
+                        .add(CreateNewCategory(name: categoryName));
                     Navigator.of(context).pop();
                   },
                   child: const Text('add'),
