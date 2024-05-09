@@ -66,6 +66,8 @@ class _AddNewTaskInCategoryScreenState
                           titleController.text,
                           descController.text,
                           widget.categoryId,
+                          false,
+                          false,
                         ));
                     Navigator.of(context).pop();
                   },

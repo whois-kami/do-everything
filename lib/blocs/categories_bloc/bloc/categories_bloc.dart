@@ -10,6 +10,7 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
   CategoriesBloc(this.database) : super(const CategoriesInitialState()) {
     on<CreateNewCategory>(_onCreateNewCategory);
     on<LoadAllCategories>(_onLoadAllCategories);
+    on<GetCategoryById>(_getCategoryById);
   }
 
   Future<void> _onCreateNewCategory(
@@ -30,6 +31,16 @@ class CategoriesBloc extends Bloc<CategoriesEvent, CategoriesState> {
     try {
       final categories = await database.getAllCategories();
       emit(CategoriesLoaded(categories));
+    } catch (e) {
+      emit(CategoriesError(e.toString()));
+    }
+  }
+
+  Future<void> _getCategoryById(
+      GetCategoryById event, Emitter<CategoriesState> emit) async {
+    try {
+      final category = await database.getCategoryById(event.categoryId);
+      emit(CategoriesLoaded([category]));
     } catch (e) {
       emit(CategoriesError(e.toString()));
     }

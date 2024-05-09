@@ -21,6 +21,8 @@ class Task extends Table {
       integer().customConstraint('REFERENCES TaskCategories(id)')();
   BoolColumn get isDone => boolean().withDefault(const Constant(false))();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 @DriftDatabase(tables: [TaskCategories, Task])
@@ -46,8 +48,21 @@ class AppDatabase extends _$AppDatabase {
     return NativeDatabase.createInBackground(file);
   }
 
+  static Future<void> deleteDatabase() async {
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+    if (await file.exists()) {
+      await file.delete();
+    }
+  }
+
   Future<List<TaskData>> getTasksByCategory(int categoryId) async {
-    return (select(task)..where((t) => t.categoryId.equals(categoryId))).get();
+    return (select(task)
+          ..where((t) =>
+              t.categoryId.equals(categoryId) &
+              t.isDone.equals(false) &
+              t.isDeleted.equals(false)))
+        .get();
   }
 
   Future<List<TaskCategory>> getAllCategories() async {
@@ -59,12 +74,50 @@ class AppDatabase extends _$AppDatabase {
         .insert(TaskCategoriesCompanion.insert(name: name));
   }
 
-  Future<void> createTaskInCategory(
-      String name, String description, int categoryId) async {
+  Future<void> createTaskInCategory(String name, String description,
+      int categoryId, bool isDeleted, bool isDone) async {
     await into(task).insert(TaskCompanion.insert(
       title: name,
       description: description,
       categoryId: categoryId,
+      isDeleted: Value(isDeleted),
+      isDone: Value(isDone),
     ));
+  }
+
+  Future<List<TaskData>> getDeletedTasks() async {
+    return (select(task)..where((t) => t.isDeleted.equals(true))).get();
+  }
+
+  Future<List<TaskData>> getDoneTasks() async {
+    return (select(task)..where((t) => t.isDone.equals(true))).get();
+  }
+
+  Future<List<TaskData>> getFavoriteTasks() async {
+    return (select(task)..where((t) => t.isFavorite.equals(true))).get();
+  }
+
+  Future<TaskCategory> getCategoryById(int categoryId) async {
+    return (select(taskCategories)
+          ..where((categ) => categ.id.equals(categoryId)))
+        .getSingle();
+  }
+
+  Future<void> updateTask(int taskId,
+      {bool? isDone, bool? isDeleted, bool? isFavorite}) async {
+    var updateBuilder = const TaskCompanion();
+    if (isDone != null) {
+      updateBuilder = updateBuilder.copyWith(isDone: Value(isDone));
+    }
+    if (isDeleted != null) {
+      updateBuilder = updateBuilder.copyWith(isDeleted: Value(isDeleted));
+    }
+    if (isFavorite != null) {
+      updateBuilder = updateBuilder.copyWith(isFavorite: Value(isFavorite));
+    }
+    if (updateBuilder != const TaskCompanion()) {
+      await (update(task)..where((t) => t.id.equals(taskId)))
+          .write(updateBuilder);
+    }
   }
 }

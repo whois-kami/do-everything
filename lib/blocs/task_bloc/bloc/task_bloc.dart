@@ -1,4 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_v2/data/local/db/app_db.dart';
 
@@ -10,7 +12,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
 
   TaskBloc(this.database) : super(const TaskInitialState()) {
     on<CreateTaskInCategoryEvent>(_onCreateTaskInCategory);
-    on<LoadTasksByCategory>(_loadTasksByCategory);
+    on<LoadTasksByCategoryEvent>(_onLoadTasksByCategory);
+    on<LoadDoneTasksEvent>(_onLoadDoneTaks);
+    on<LoadDeletedTasksEvent>(_onLoadDeletedTaks);
+    on<LoadFavoriteTasksEvent>(_onLoadFavoriteTaks);
+    on<UpdateTaskEvent>(_onUpdateTask);
   }
 
   Future<void> _onCreateTaskInCategory(
@@ -18,7 +24,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     emit(TasksLoading());
     try {
       await database.createTaskInCategory(
-          event.name, event.description, event.categoryId);
+        event.name,
+        event.description,
+        event.categoryId,
+        event.isDeleted,
+        event.isDone,
+      );
       final tasks = await database.getTasksByCategory(event.categoryId);
       emit(TasksLoaded(tasks));
     } catch (e) {
@@ -26,14 +37,63 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     }
   }
 
-  Future<void> _loadTasksByCategory(
-      LoadTasksByCategory event, Emitter<TaskState> emit) async {
+  Future<void> _onLoadTasksByCategory(
+      LoadTasksByCategoryEvent event, Emitter<TaskState> emit) async {
     emit(TasksLoading());
     try {
       final tasks = await database.getTasksByCategory(event.categoryId);
       emit(TasksLoaded(tasks));
     } catch (e) {
       emit(TasksError(e.toString()));
+    }
+  }
+
+  Future<void> _onLoadDoneTaks(
+      LoadDoneTasksEvent event, Emitter<TaskState> emit) async {
+    emit(TasksLoading());
+    try {
+      final tasks = await database.getDoneTasks();
+      emit(TasksLoaded(tasks));
+    } catch (e) {
+      TasksError(e.toString());
+    }
+  }
+
+  Future<void> _onLoadDeletedTaks(
+      LoadDeletedTasksEvent event, Emitter<TaskState> emit) async {
+    emit(TasksLoading());
+    try {
+      final tasks = await database.getDeletedTasks();
+      emit(TasksLoaded(tasks));
+    } catch (e) {
+      TasksError(e.toString());
+    }
+  }
+
+  Future<void> _onLoadFavoriteTaks(
+      LoadFavoriteTasksEvent event, Emitter<TaskState> emit) async {
+    emit(TasksLoading());
+    try {
+      final tasks = await database.getFavoriteTasks();
+      emit(TasksLoaded(tasks));
+    } catch (e) {
+      TasksError(e.toString());
+    }
+  }
+
+  Future<void> _onUpdateTask(
+      UpdateTaskEvent event, Emitter<TaskState> emit) async {
+    try {
+      await database.updateTask(
+        event.taskId,
+        isDone: event.isDone,
+        isDeleted: event.isDeleted,
+        isFavorite: event.isFavorite,
+      );
+      final tasks = await database.getTasksByCategory(event.categoryId);
+      emit(TasksLoaded(tasks));
+    } catch (e) {
+      TasksError(e.toString());
     }
   }
 }

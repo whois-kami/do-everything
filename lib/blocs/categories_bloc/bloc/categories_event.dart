@@ -16,7 +16,14 @@ class CreateNewCategory extends CategoriesEvent {
   List<Object> get props => [name];
 }
 
-class LoadAllCategories  extends CategoriesEvent {
+class LoadAllCategories extends CategoriesEvent {
   @override
   List<Object> get props => [];
+}
+
+class GetCategoryById extends CategoriesEvent {
+  final int categoryId;
+  const GetCategoryById({required this.categoryId});
+  @override
+  List<Object> get props => [categoryId];
 }

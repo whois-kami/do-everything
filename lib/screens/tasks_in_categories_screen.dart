@@ -23,13 +23,15 @@ class TaskInCategoriesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final data = ModalRoute.of(context)?.settings.arguments as int?;
+    if (data != null) {
+      context.read<TaskBloc>().add(LoadTasksByCategoryEvent(data));
+    }
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => _createNewTaskInCategory(context, data),
         child: const Icon(Icons.add),
       ),
       appBar: AppBar(
-        title: const Text('Tasks App'),
         actions: [
           IconButton(
             onPressed: () => _createNewTaskInCategory(context, data),
@@ -44,7 +46,7 @@ class TaskInCategoriesScreen extends StatelessWidget {
               return const CircularProgressIndicator();
             } else if (state is TasksLoaded) {
               List<TaskData> tasks = state.tasks;
-              return TasksList(tasks: tasks);
+              return TasksInCategoriesWidget(tasks: tasks);
             } else if (state is TasksError) {
               return Text('Произошла ошибка: ${state.message}');
             } else {

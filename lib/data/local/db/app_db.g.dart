@@ -206,8 +206,54 @@ class $TaskTable extends Task with TableInfo<$TaskTable, TaskData> {
       type: DriftSqlType.int,
       requiredDuringInsert: true,
       $customConstraints: 'REFERENCES TaskCategories(id)');
+  static const VerificationMeta _isDoneMeta = const VerificationMeta('isDone');
   @override
-  List<GeneratedColumn> get $columns => [id, title, description, categoryId];
+  late final GeneratedColumn<bool> isDone = GeneratedColumn<bool>(
+      'is_done', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_done" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _isFavoriteMeta =
+      const VerificationMeta('isFavorite');
+  @override
+  late final GeneratedColumn<bool> isFavorite = GeneratedColumn<bool>(
+      'is_favorite', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_favorite" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        title,
+        description,
+        categoryId,
+        isDone,
+        isDeleted,
+        isFavorite,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -243,6 +289,24 @@ class $TaskTable extends Task with TableInfo<$TaskTable, TaskData> {
     } else if (isInserting) {
       context.missing(_categoryIdMeta);
     }
+    if (data.containsKey('is_done')) {
+      context.handle(_isDoneMeta,
+          isDone.isAcceptableOrUnknown(data['is_done']!, _isDoneMeta));
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    if (data.containsKey('is_favorite')) {
+      context.handle(
+          _isFavoriteMeta,
+          isFavorite.isAcceptableOrUnknown(
+              data['is_favorite']!, _isFavoriteMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
     return context;
   }
 
@@ -260,6 +324,14 @@ class $TaskTable extends Task with TableInfo<$TaskTable, TaskData> {
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
       categoryId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}category_id'])!,
+      isDone: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_done'])!,
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+      isFavorite: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_favorite'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
   }
 
@@ -274,11 +346,19 @@ class TaskData extends DataClass implements Insertable<TaskData> {
   final String title;
   final String description;
   final int categoryId;
+  final bool isDone;
+  final bool isDeleted;
+  final bool isFavorite;
+  final DateTime createdAt;
   const TaskData(
       {required this.id,
       required this.title,
       required this.description,
-      required this.categoryId});
+      required this.categoryId,
+      required this.isDone,
+      required this.isDeleted,
+      required this.isFavorite,
+      required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -286,6 +366,10 @@ class TaskData extends DataClass implements Insertable<TaskData> {
     map['title'] = Variable<String>(title);
     map['description'] = Variable<String>(description);
     map['category_id'] = Variable<int>(categoryId);
+    map['is_done'] = Variable<bool>(isDone);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['is_favorite'] = Variable<bool>(isFavorite);
+    map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
 
@@ -295,6 +379,10 @@ class TaskData extends DataClass implements Insertable<TaskData> {
       title: Value(title),
       description: Value(description),
       categoryId: Value(categoryId),
+      isDone: Value(isDone),
+      isDeleted: Value(isDeleted),
+      isFavorite: Value(isFavorite),
+      createdAt: Value(createdAt),
     );
   }
 
@@ -306,6 +394,10 @@ class TaskData extends DataClass implements Insertable<TaskData> {
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String>(json['description']),
       categoryId: serializer.fromJson<int>(json['categoryId']),
+      isDone: serializer.fromJson<bool>(json['isDone']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      isFavorite: serializer.fromJson<bool>(json['isFavorite']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
   @override
@@ -316,16 +408,31 @@ class TaskData extends DataClass implements Insertable<TaskData> {
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String>(description),
       'categoryId': serializer.toJson<int>(categoryId),
+      'isDone': serializer.toJson<bool>(isDone),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'isFavorite': serializer.toJson<bool>(isFavorite),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
 
   TaskData copyWith(
-          {int? id, String? title, String? description, int? categoryId}) =>
+          {int? id,
+          String? title,
+          String? description,
+          int? categoryId,
+          bool? isDone,
+          bool? isDeleted,
+          bool? isFavorite,
+          DateTime? createdAt}) =>
       TaskData(
         id: id ?? this.id,
         title: title ?? this.title,
         description: description ?? this.description,
         categoryId: categoryId ?? this.categoryId,
+        isDone: isDone ?? this.isDone,
+        isDeleted: isDeleted ?? this.isDeleted,
+        isFavorite: isFavorite ?? this.isFavorite,
+        createdAt: createdAt ?? this.createdAt,
       );
   @override
   String toString() {
@@ -333,13 +440,18 @@ class TaskData extends DataClass implements Insertable<TaskData> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
-          ..write('categoryId: $categoryId')
+          ..write('categoryId: $categoryId, ')
+          ..write('isDone: $isDone, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, description, categoryId);
+  int get hashCode => Object.hash(id, title, description, categoryId, isDone,
+      isDeleted, isFavorite, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -347,7 +459,11 @@ class TaskData extends DataClass implements Insertable<TaskData> {
           other.id == this.id &&
           other.title == this.title &&
           other.description == this.description &&
-          other.categoryId == this.categoryId);
+          other.categoryId == this.categoryId &&
+          other.isDone == this.isDone &&
+          other.isDeleted == this.isDeleted &&
+          other.isFavorite == this.isFavorite &&
+          other.createdAt == this.createdAt);
 }
 
 class TaskCompanion extends UpdateCompanion<TaskData> {
@@ -355,17 +471,29 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
   final Value<String> title;
   final Value<String> description;
   final Value<int> categoryId;
+  final Value<bool> isDone;
+  final Value<bool> isDeleted;
+  final Value<bool> isFavorite;
+  final Value<DateTime> createdAt;
   const TaskCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
     this.categoryId = const Value.absent(),
+    this.isDone = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.createdAt = const Value.absent(),
   });
   TaskCompanion.insert({
     this.id = const Value.absent(),
     required String title,
     required String description,
     required int categoryId,
+    this.isDone = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.isFavorite = const Value.absent(),
+    this.createdAt = const Value.absent(),
   })  : title = Value(title),
         description = Value(description),
         categoryId = Value(categoryId);
@@ -374,12 +502,20 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
     Expression<String>? title,
     Expression<String>? description,
     Expression<int>? categoryId,
+    Expression<bool>? isDone,
+    Expression<bool>? isDeleted,
+    Expression<bool>? isFavorite,
+    Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
       if (categoryId != null) 'category_id': categoryId,
+      if (isDone != null) 'is_done': isDone,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (isFavorite != null) 'is_favorite': isFavorite,
+      if (createdAt != null) 'created_at': createdAt,
     });
   }
 
@@ -387,12 +523,20 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
       {Value<int>? id,
       Value<String>? title,
       Value<String>? description,
-      Value<int>? categoryId}) {
+      Value<int>? categoryId,
+      Value<bool>? isDone,
+      Value<bool>? isDeleted,
+      Value<bool>? isFavorite,
+      Value<DateTime>? createdAt}) {
     return TaskCompanion(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
       categoryId: categoryId ?? this.categoryId,
+      isDone: isDone ?? this.isDone,
+      isDeleted: isDeleted ?? this.isDeleted,
+      isFavorite: isFavorite ?? this.isFavorite,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
@@ -411,6 +555,18 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
     if (categoryId.present) {
       map['category_id'] = Variable<int>(categoryId.value);
     }
+    if (isDone.present) {
+      map['is_done'] = Variable<bool>(isDone.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (isFavorite.present) {
+      map['is_favorite'] = Variable<bool>(isFavorite.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
     return map;
   }
 
@@ -420,7 +576,11 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
-          ..write('categoryId: $categoryId')
+          ..write('categoryId: $categoryId, ')
+          ..write('isDone: $isDone, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('isFavorite: $isFavorite, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
