@@ -46,7 +46,7 @@ class TaskInCategoriesScreen extends StatelessWidget {
               return const CircularProgressIndicator();
             } else if (state is TasksLoaded) {
               List<TaskData> tasks = state.tasks;
-              return TasksInCategoriesWidget(tasks: tasks);
+              return TasksInCategoriesListWidget(tasks: tasks);
             } else if (state is TasksError) {
               return Text('Произошла ошибка: ${state.message}');
             } else {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:todo_v2/blocs/blocs_export.dart';
 import 'package:todo_v2/data/local/db/app_db.dart';
+import 'package:todo_v2/screens/change_task_screen.dart';
 
 enum TaskActions {
   edit,
@@ -9,19 +10,33 @@ enum TaskActions {
   delete,
 }
 
-class TasksInCategoriesWidget extends StatefulWidget {
+class TasksInCategoriesListWidget extends StatefulWidget {
   final List<TaskData> tasks;
-  const TasksInCategoriesWidget({
+  const TasksInCategoriesListWidget({
     super.key,
     required this.tasks,
   });
 
   @override
-  State<TasksInCategoriesWidget> createState() =>
-      _TasksInCategoriesWidgetState();
+  State<TasksInCategoriesListWidget> createState() =>
+      _TasksInCategoriesListWidgetState();
 }
 
-class _TasksInCategoriesWidgetState extends State<TasksInCategoriesWidget> {
+class _TasksInCategoriesListWidgetState
+    extends State<TasksInCategoriesListWidget> {
+  void _changeTaskInCategory({required TaskData task}) {
+    showModalBottomSheet(
+      context: (context),
+      builder: (context) {
+        return SingleChildScrollView(
+          child: ChangeTaskScreen(
+            task: task,
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -71,7 +86,7 @@ class _TasksInCategoriesWidgetState extends State<TasksInCategoriesWidget> {
                         return [
                           PopupMenuItem(
                             value: TaskActions.edit,
-                            onTap: () {},
+                            onTap: () => _changeTaskInCategory(task: task),
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [

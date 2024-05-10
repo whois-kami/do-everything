@@ -8,7 +8,6 @@ import 'blocs/blocs_export.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final AppDatabase database = await AppDatabase.create();
-
   initializeDateFormatting();
   runApp(MultiBlocProvider(
     providers: [

@@ -17,6 +17,7 @@ class Task extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
   TextColumn get description => text()();
+  TextColumn get categoryName => text().nullable()();
   IntColumn get categoryId =>
       integer().customConstraint('REFERENCES TaskCategories(id)')();
   BoolColumn get isDone => boolean().withDefault(const Constant(false))();
@@ -76,9 +77,14 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> createTaskInCategory(String name, String description,
       int categoryId, bool isDeleted, bool isDone) async {
+    final categoryName = await (select(taskCategories)
+          ..where((cat) => cat.id.equals(categoryId + 1)))
+        .map((data) => data.name)
+        .getSingleOrNull();
     await into(task).insert(TaskCompanion.insert(
       title: name,
       description: description,
+      categoryName: Value(categoryName),
       categoryId: categoryId,
       isDeleted: Value(isDeleted),
       isDone: Value(isDone),
@@ -104,7 +110,11 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> updateTask(int taskId,
-      {bool? isDone, bool? isDeleted, bool? isFavorite}) async {
+      {bool? isDone,
+      bool? isDeleted,
+      bool? isFavorite,
+      String? title,
+      String? description}) async {
     var updateBuilder = const TaskCompanion();
     if (isDone != null) {
       updateBuilder = updateBuilder.copyWith(isDone: Value(isDone));
@@ -114,6 +124,12 @@ class AppDatabase extends _$AppDatabase {
     }
     if (isFavorite != null) {
       updateBuilder = updateBuilder.copyWith(isFavorite: Value(isFavorite));
+    }
+    if (title != null) {
+      updateBuilder = updateBuilder.copyWith(title: Value(title));
+    }
+    if (description != null) {
+      updateBuilder = updateBuilder.copyWith(description: Value(description));
     }
     if (updateBuilder != const TaskCompanion()) {
       await (update(task)..where((t) => t.id.equals(taskId)))

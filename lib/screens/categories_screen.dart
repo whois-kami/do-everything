@@ -38,15 +38,6 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         onPressed: () => _createNewCategory(context),
         child: const Icon(Icons.add),
       ),
-      appBar: AppBar(
-        title: const Text('Tasks App'),
-        actions: [
-          IconButton(
-            onPressed: () => (_createNewCategory(context)),
-            icon: const Icon(Icons.add),
-          ),
-        ],
-      ),
       body: Center(
         child: BlocBuilder<CategoriesBloc, CategoriesState>(
           builder: (context, state) {

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -86,12 +87,25 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     try {
       await database.updateTask(
         event.taskId,
+        title: event.title,
+        description: event.description,
         isDone: event.isDone,
         isDeleted: event.isDeleted,
         isFavorite: event.isFavorite,
       );
-      final tasks = await database.getTasksByCategory(event.categoryId);
-      emit(TasksLoaded(tasks));
+      if (event.isDone == false) {
+        final tasks = await database.getDoneTasks();
+        emit(TasksLoaded(tasks));
+      } else if (event.isDeleted == false) {
+        final tasks = await database.getDeletedTasks();
+        emit(TasksLoaded(tasks));
+      } else if (event.isFavorite == false) {
+        final tasks = await database.getFavoriteTasks();
+        emit(TasksLoaded(tasks));
+      } else {
+        final tasks = await database.getTasksByCategory(event.categoryId);
+        emit(TasksLoaded(tasks));
+      }
     } catch (e) {
       TasksError(e.toString());
     }

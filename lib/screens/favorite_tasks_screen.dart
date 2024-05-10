@@ -27,7 +27,7 @@ class _FavoriteTasksScreenState extends State<FavoriteTasksScreen> {
               return const CircularProgressIndicator();
             } else if (state is TasksLoaded) {
               List<TaskData> tasks = state.tasks;
-              return FavoriteTasksListWidget(favoriteTasks: tasks);
+              return FavoritedTasksListWidget(favoritedTasks: tasks);
             } else if (state is TasksError) {
               return Text('Произошла ошибка: ${state.message}');
             } else {

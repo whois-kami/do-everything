@@ -198,6 +198,12 @@ class $TaskTable extends Task with TableInfo<$TaskTable, TaskData> {
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
       'description', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _categoryNameMeta =
+      const VerificationMeta('categoryName');
+  @override
+  late final GeneratedColumn<String> categoryName = GeneratedColumn<String>(
+      'category_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _categoryIdMeta =
       const VerificationMeta('categoryId');
   @override
@@ -248,6 +254,7 @@ class $TaskTable extends Task with TableInfo<$TaskTable, TaskData> {
         id,
         title,
         description,
+        categoryName,
         categoryId,
         isDone,
         isDeleted,
@@ -280,6 +287,12 @@ class $TaskTable extends Task with TableInfo<$TaskTable, TaskData> {
               data['description']!, _descriptionMeta));
     } else if (isInserting) {
       context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('category_name')) {
+      context.handle(
+          _categoryNameMeta,
+          categoryName.isAcceptableOrUnknown(
+              data['category_name']!, _categoryNameMeta));
     }
     if (data.containsKey('category_id')) {
       context.handle(
@@ -322,6 +335,8 @@ class $TaskTable extends Task with TableInfo<$TaskTable, TaskData> {
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      categoryName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category_name']),
       categoryId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}category_id'])!,
       isDone: attachedDatabase.typeMapping
@@ -345,6 +360,7 @@ class TaskData extends DataClass implements Insertable<TaskData> {
   final int id;
   final String title;
   final String description;
+  final String? categoryName;
   final int categoryId;
   final bool isDone;
   final bool isDeleted;
@@ -354,6 +370,7 @@ class TaskData extends DataClass implements Insertable<TaskData> {
       {required this.id,
       required this.title,
       required this.description,
+      this.categoryName,
       required this.categoryId,
       required this.isDone,
       required this.isDeleted,
@@ -365,6 +382,9 @@ class TaskData extends DataClass implements Insertable<TaskData> {
     map['id'] = Variable<int>(id);
     map['title'] = Variable<String>(title);
     map['description'] = Variable<String>(description);
+    if (!nullToAbsent || categoryName != null) {
+      map['category_name'] = Variable<String>(categoryName);
+    }
     map['category_id'] = Variable<int>(categoryId);
     map['is_done'] = Variable<bool>(isDone);
     map['is_deleted'] = Variable<bool>(isDeleted);
@@ -378,6 +398,9 @@ class TaskData extends DataClass implements Insertable<TaskData> {
       id: Value(id),
       title: Value(title),
       description: Value(description),
+      categoryName: categoryName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryName),
       categoryId: Value(categoryId),
       isDone: Value(isDone),
       isDeleted: Value(isDeleted),
@@ -393,6 +416,7 @@ class TaskData extends DataClass implements Insertable<TaskData> {
       id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String>(json['description']),
+      categoryName: serializer.fromJson<String?>(json['categoryName']),
       categoryId: serializer.fromJson<int>(json['categoryId']),
       isDone: serializer.fromJson<bool>(json['isDone']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
@@ -407,6 +431,7 @@ class TaskData extends DataClass implements Insertable<TaskData> {
       'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String>(description),
+      'categoryName': serializer.toJson<String?>(categoryName),
       'categoryId': serializer.toJson<int>(categoryId),
       'isDone': serializer.toJson<bool>(isDone),
       'isDeleted': serializer.toJson<bool>(isDeleted),
@@ -419,6 +444,7 @@ class TaskData extends DataClass implements Insertable<TaskData> {
           {int? id,
           String? title,
           String? description,
+          Value<String?> categoryName = const Value.absent(),
           int? categoryId,
           bool? isDone,
           bool? isDeleted,
@@ -428,6 +454,8 @@ class TaskData extends DataClass implements Insertable<TaskData> {
         id: id ?? this.id,
         title: title ?? this.title,
         description: description ?? this.description,
+        categoryName:
+            categoryName.present ? categoryName.value : this.categoryName,
         categoryId: categoryId ?? this.categoryId,
         isDone: isDone ?? this.isDone,
         isDeleted: isDeleted ?? this.isDeleted,
@@ -440,6 +468,7 @@ class TaskData extends DataClass implements Insertable<TaskData> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
+          ..write('categoryName: $categoryName, ')
           ..write('categoryId: $categoryId, ')
           ..write('isDone: $isDone, ')
           ..write('isDeleted: $isDeleted, ')
@@ -450,8 +479,8 @@ class TaskData extends DataClass implements Insertable<TaskData> {
   }
 
   @override
-  int get hashCode => Object.hash(id, title, description, categoryId, isDone,
-      isDeleted, isFavorite, createdAt);
+  int get hashCode => Object.hash(id, title, description, categoryName,
+      categoryId, isDone, isDeleted, isFavorite, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -459,6 +488,7 @@ class TaskData extends DataClass implements Insertable<TaskData> {
           other.id == this.id &&
           other.title == this.title &&
           other.description == this.description &&
+          other.categoryName == this.categoryName &&
           other.categoryId == this.categoryId &&
           other.isDone == this.isDone &&
           other.isDeleted == this.isDeleted &&
@@ -470,6 +500,7 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
   final Value<int> id;
   final Value<String> title;
   final Value<String> description;
+  final Value<String?> categoryName;
   final Value<int> categoryId;
   final Value<bool> isDone;
   final Value<bool> isDeleted;
@@ -479,6 +510,7 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
     this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
+    this.categoryName = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.isDone = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -489,6 +521,7 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
     this.id = const Value.absent(),
     required String title,
     required String description,
+    this.categoryName = const Value.absent(),
     required int categoryId,
     this.isDone = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -501,6 +534,7 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
     Expression<int>? id,
     Expression<String>? title,
     Expression<String>? description,
+    Expression<String>? categoryName,
     Expression<int>? categoryId,
     Expression<bool>? isDone,
     Expression<bool>? isDeleted,
@@ -511,6 +545,7 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
       if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
+      if (categoryName != null) 'category_name': categoryName,
       if (categoryId != null) 'category_id': categoryId,
       if (isDone != null) 'is_done': isDone,
       if (isDeleted != null) 'is_deleted': isDeleted,
@@ -523,6 +558,7 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
       {Value<int>? id,
       Value<String>? title,
       Value<String>? description,
+      Value<String?>? categoryName,
       Value<int>? categoryId,
       Value<bool>? isDone,
       Value<bool>? isDeleted,
@@ -532,6 +568,7 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
+      categoryName: categoryName ?? this.categoryName,
       categoryId: categoryId ?? this.categoryId,
       isDone: isDone ?? this.isDone,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -551,6 +588,9 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
     }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
+    }
+    if (categoryName.present) {
+      map['category_name'] = Variable<String>(categoryName.value);
     }
     if (categoryId.present) {
       map['category_id'] = Variable<int>(categoryId.value);
@@ -576,6 +616,7 @@ class TaskCompanion extends UpdateCompanion<TaskData> {
           ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
+          ..write('categoryName: $categoryName, ')
           ..write('categoryId: $categoryId, ')
           ..write('isDone: $isDone, ')
           ..write('isDeleted: $isDeleted, ')

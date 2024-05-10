@@ -22,13 +22,15 @@ class _BinTasksScreenState extends State<BinTasksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              onPressed: () => Scaffold.of(context).openDrawer(),
-              icon: const Icon(Icons.menu),
-            );
-          },
+        leading: SafeArea(
+          child: Builder(
+            builder: (context) {
+              return IconButton(
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: const Icon(Icons.menu),
+              );
+            },
+          ),
         ),
       ),
       drawer: Drawer(
@@ -47,7 +49,7 @@ class _BinTasksScreenState extends State<BinTasksScreen> {
                 'Home',
                 style: TextStyle(fontSize: 20),
               ),
-              leading: const Icon(Icons.delete_outline_outlined),
+              leading: const Icon(Icons.home),
               onTap: () => Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute<void>(
@@ -61,9 +63,7 @@ class _BinTasksScreenState extends State<BinTasksScreen> {
       body: Center(
         child: BlocBuilder<TaskBloc, TaskState>(
           builder: (context, state) {
-            if (state is TasksLoading) {
-              return const CircularProgressIndicator();
-            } else if (state is TasksLoaded) {
+            if (state is TasksLoaded) {
               List<TaskData> tasks = state.tasks;
               return DeletedTasksListWidget(deletedTasks: tasks);
             } else if (state is TasksError) {

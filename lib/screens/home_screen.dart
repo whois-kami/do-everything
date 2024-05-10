@@ -32,13 +32,15 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       drawerEnableOpenDragGesture: false,
       appBar: AppBar(
-        leading: Builder(
-          builder: (context) {
-            return IconButton(
-              onPressed: () => Scaffold.of(context).openDrawer(),
-              icon: const Icon(Icons.menu),
-            );
-          },
+        leading: SafeArea(
+          child: Builder(
+            builder: (context) {
+              return IconButton(
+                onPressed: () => Scaffold.of(context).openDrawer(),
+                icon: const Icon(Icons.menu),
+              );
+            },
+          ),
         ),
       ),
       drawer: Drawer(

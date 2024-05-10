@@ -54,6 +54,8 @@ class LoadFavoriteTasksEvent extends TaskEvent {
 class UpdateTaskEvent extends TaskEvent {
   final int taskId;
   final int categoryId;
+  final String? title;
+  final String? description;
   final bool? isDone;
   final bool? isDeleted;
   final bool? isFavorite;
@@ -61,6 +63,8 @@ class UpdateTaskEvent extends TaskEvent {
   const UpdateTaskEvent({
     required this.taskId,
     required this.categoryId,
+    this.title,
+    this.description,
     this.isDone,
     this.isDeleted,
     this.isFavorite,
