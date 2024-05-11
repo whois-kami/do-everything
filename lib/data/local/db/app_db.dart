@@ -70,6 +70,10 @@ class AppDatabase extends _$AppDatabase {
     return (select(taskCategories)).get();
   }
 
+  Future<List<TaskData>> getAllTasks() async {
+    return (select(task)).get();
+  }
+
   Future<void> createCategory(String name) async {
     await into(taskCategories)
         .insert(TaskCategoriesCompanion.insert(name: name));
@@ -134,6 +138,17 @@ class AppDatabase extends _$AppDatabase {
     if (updateBuilder != const TaskCompanion()) {
       await (update(task)..where((t) => t.id.equals(taskId)))
           .write(updateBuilder);
+    }
+  }
+
+  Future<List<TaskData>> getTasksByQuery(String query) async {
+    final lowercaseQuery = query.toLowerCase();
+    if (query.isEmpty) {
+      return (select(task).get());
+    } else {
+      return (select(task)
+            ..where((t) => t.title.lower().like('%$lowercaseQuery%')))
+          .get();
     }
   }
 }

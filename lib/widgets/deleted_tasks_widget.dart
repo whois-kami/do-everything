@@ -68,6 +68,7 @@ class _DeletedTasksListWidgetState extends State<DeletedTasksListWidget> {
                           {
                             context.read<TaskBloc>().add(
                                   UpdateTaskEvent(
+                                    pageId: 0,
                                     categoryId: task.categoryId,
                                     taskId: task.id,
                                     isDone: newValue,
@@ -95,6 +96,7 @@ class _DeletedTasksListWidgetState extends State<DeletedTasksListWidget> {
                             value: TaskActions.addToBookmarks,
                             onTap: () => context.read<TaskBloc>().add(
                                   UpdateTaskEvent(
+                                      pageId: 0,
                                       taskId: task.id,
                                       categoryId: task.categoryId,
                                       isFavorite: !task.isFavorite),
@@ -112,6 +114,7 @@ class _DeletedTasksListWidgetState extends State<DeletedTasksListWidget> {
                             value: TaskActions.restore,
                             onTap: () => context.read<TaskBloc>().add(
                                   UpdateTaskEvent(
+                                      pageId: 0,
                                       taskId: task.id,
                                       categoryId: task.categoryId,
                                       isDeleted: !task.isDeleted),

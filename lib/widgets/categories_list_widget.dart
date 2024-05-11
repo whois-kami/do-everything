@@ -1,69 +1,79 @@
 import 'package:flutter/material.dart';
 import 'package:todo_v2/blocs/blocs_export.dart';
 import 'package:todo_v2/data/local/db/app_db.dart';
+import 'package:todo_v2/screens/new_category_screen.dart';
 
 class CategoriesList extends StatelessWidget {
   final List<TaskCategory> categories;
+
   const CategoriesList({
     super.key,
     required this.categories,
   });
 
-  @override
-  Widget build(BuildContext context) {
-    return CustomScrollView(
-      slivers: [
-        SliverGrid(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2),
-          delegate: SliverChildBuilderDelegate((context, index) {
-            final currentCategory = categories[index];
-            final boxColor = generateColor(index);
-            return GestureDetector(
-              onTap: () {
-                context.read<TaskBloc>().add(LoadTasksByCategoryEvent(index));
-                Navigator.pushNamed(context, '/categories/tasks',
-                    arguments: index);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                      color: boxColor.withOpacity(1),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.7),
-                          blurRadius: 3,
-                          spreadRadius: 2,
-                          offset:
-                              const Offset(5, 4), // changes position of shadow
-                        ),
-                      ],
-                      borderRadius: const BorderRadius.all(Radius.circular(10)),
-                      border: Border.all(color: Colors.black12)),
-                  child: Center(
-                    child: Text(currentCategory.name),
-                  ),
-                ),
-              ),
-            );
-          }, childCount: categories.length),
-        ),
-      ],
+  void _createNewCategory(context) {
+    showModalBottomSheet(
+      context: (context),
+      builder: (context) {
+        return const SingleChildScrollView(
+          child: AddNewCategoryScreen(),
+        );
+      },
     );
   }
 
-  Color generateColor(int index) {
-    int baseRed = 235;
-    int baseGreen = 168;
-    int baseBlue = 52;
-
-    double factor = 1 - (index % 10) * 0.1;
-
-    int red = (baseRed * factor).toInt().clamp(0, 255);
-    int green = (baseGreen * factor).toInt().clamp(0, 255);
-    int blue = (baseBlue * factor).toInt().clamp(0, 255);
-
-    return Color.fromRGBO(red, green, blue, 1);
+  @override
+  Widget build(BuildContext context) {
+    List<TaskCategory> reversedCategories = categories.reversed.toList();
+    return ListView.separated(
+      // for add new cagegory button
+      itemCount: reversedCategories.length + 1,
+      scrollDirection: Axis.horizontal,
+      separatorBuilder: (context, index) => const SizedBox(width: 20),
+      itemBuilder: (context, index) {
+        if (index < reversedCategories.length) {
+          TaskCategory category = reversedCategories[index];
+          return Column(
+            children: [
+              InkWell(
+                onTap: () {
+                  context.read<TaskBloc>().add(LoadTasksByCategoryEvent(index));
+                  Navigator.pushNamed(context, '/categories/tasks',
+                      arguments: index);
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    color: Colors.red.shade50.withOpacity(0.3),
+                  ),
+                  child: Center(child: Text(category.name[0])),
+                ),
+              ),
+              Text(category.name),
+            ],
+          );
+        } else {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InkWell(
+                onTap: () => _createNewCategory(context),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    color: Colors.grey.withOpacity(0.3),
+                  ),
+                  child: const Icon(Icons.add, color: Colors.white),
+                ),
+              ),
+            ],
+          );
+        }
+      },
+    );
   }
 }

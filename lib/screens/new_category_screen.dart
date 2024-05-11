@@ -11,7 +11,6 @@ class AddNewCategoryScreen extends StatefulWidget {
 class _AddNewCategoryScreenState extends State<AddNewCategoryScreen> {
   final TextEditingController titleController = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -38,6 +37,8 @@ class _AddNewCategoryScreenState extends State<AddNewCategoryScreen> {
               ),
             ),
             const SizedBox(height: 10),
+    
+            const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -61,4 +62,6 @@ class _AddNewCategoryScreenState extends State<AddNewCategoryScreen> {
       ),
     );
   }
+
+
 }

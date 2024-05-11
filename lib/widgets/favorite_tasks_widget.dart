@@ -69,6 +69,7 @@ class _FavoritedTasksListWidgetState extends State<FavoritedTasksListWidget> {
                           {
                             context.read<TaskBloc>().add(
                                   UpdateTaskEvent(
+                                    pageId: 3,
                                     categoryId: task.categoryId,
                                     taskId: task.id,
                                     isDone: newValue,
@@ -96,6 +97,7 @@ class _FavoritedTasksListWidgetState extends State<FavoritedTasksListWidget> {
                             value: TaskActions.removeFromBookmarks,
                             onTap: () => context.read<TaskBloc>().add(
                                   UpdateTaskEvent(
+                                      pageId: 3,
                                       taskId: task.id,
                                       categoryId: task.categoryId,
                                       isFavorite: !task.isFavorite),
@@ -113,6 +115,7 @@ class _FavoritedTasksListWidgetState extends State<FavoritedTasksListWidget> {
                             value: TaskActions.delete,
                             onTap: () => context.read<TaskBloc>().add(
                                   UpdateTaskEvent(
+                                      pageId: 3,
                                       taskId: task.id,
                                       categoryId: task.categoryId,
                                       isDeleted: !task.isDeleted),

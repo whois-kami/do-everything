@@ -20,58 +20,63 @@ class _BinTasksScreenState extends State<BinTasksScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: SafeArea(
-          child: Builder(
-            builder: (context) {
-              return IconButton(
-                onPressed: () => Scaffold.of(context).openDrawer(),
-                icon: const Icon(Icons.menu),
-              );
-            },
+    return PopScope(
+      onPopInvoked: (didPop) async {
+        context.read<TaskBloc>().add(ResetTasksEvent());
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: SafeArea(
+            child: Builder(
+              builder: (context) {
+                return IconButton(
+                  onPressed: () => Scaffold.of(context).openDrawer(),
+                  icon: const Icon(Icons.menu),
+                );
+              },
+            ),
           ),
         ),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            const DrawerHeader(
-              child: Center(
-                child: Text(
-                  'Made with soul',
-                  style: TextStyle(fontSize: 35),
+        drawer: Drawer(
+          child: ListView(
+            children: [
+              const DrawerHeader(
+                child: Center(
+                  child: Text(
+                    'Made with soul',
+                    style: TextStyle(fontSize: 35),
+                  ),
                 ),
               ),
-            ),
-            ListTile(
-              title: const Text(
-                'Home',
-                style: TextStyle(fontSize: 20),
+              ListTile(
+                title: const Text(
+                  'Home',
+                  style: TextStyle(fontSize: 20),
+                ),
+                leading: const Icon(Icons.home),
+                onTap: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute<void>(
+                      builder: (BuildContext context) => const HomeScreen()),
+                  ModalRoute.withName('/'),
+                ),
               ),
-              leading: const Icon(Icons.home),
-              onTap: () => Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute<void>(
-                    builder: (BuildContext context) => const HomeScreen()),
-                ModalRoute.withName('/'),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-      body: Center(
-        child: BlocBuilder<TaskBloc, TaskState>(
-          builder: (context, state) {
-            if (state is TasksLoaded) {
-              List<TaskData> tasks = state.tasks;
-              return DeletedTasksListWidget(deletedTasks: tasks);
-            } else if (state is TasksError) {
-              return Text('Произошла ошибка: ${state.message}');
-            } else {
-              return const Text('Начальное состояние блока');
-            }
-          },
+        body: Center(
+          child: BlocBuilder<TaskBloc, TaskState>(
+            builder: (context, state) {
+              if (state is TasksLoaded) {
+                List<TaskData> tasks = state.tasks;
+                return DeletedTasksListWidget(deletedTasks: tasks);
+              } else if (state is TasksError) {
+                return Text('Произошла ошибка: ${state.message}');
+              } else {
+                return const Text('Начальное состояние блока');
+              }
+            },
+          ),
         ),
       ),
     );

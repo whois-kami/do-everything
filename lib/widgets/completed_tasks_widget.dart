@@ -69,6 +69,7 @@ class _CompletedTasksListWidgetState extends State<CompletedTasksListWidget> {
                           {
                             context.read<TaskBloc>().add(
                                   UpdateTaskEvent(
+                                    pageId: 2,
                                     categoryId: task.categoryId,
                                     taskId: task.id,
                                     isDone: newValue,
@@ -96,6 +97,7 @@ class _CompletedTasksListWidgetState extends State<CompletedTasksListWidget> {
                             value: TaskActions.addToBookmarks,
                             onTap: () => context.read<TaskBloc>().add(
                                   UpdateTaskEvent(
+                                      pageId: 2,
                                       taskId: task.id,
                                       categoryId: task.categoryId,
                                       isFavorite: !task.isFavorite),
@@ -113,6 +115,7 @@ class _CompletedTasksListWidgetState extends State<CompletedTasksListWidget> {
                             value: TaskActions.delete,
                             onTap: () => context.read<TaskBloc>().add(
                                   UpdateTaskEvent(
+                                      pageId: 2,
                                       taskId: task.id,
                                       categoryId: task.categoryId,
                                       isDeleted: !task.isDeleted),

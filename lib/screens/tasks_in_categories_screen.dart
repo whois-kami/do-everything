@@ -26,33 +26,34 @@ class TaskInCategoriesScreen extends StatelessWidget {
     if (data != null) {
       context.read<TaskBloc>().add(LoadTasksByCategoryEvent(data));
     }
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _createNewTaskInCategory(context, data),
-        child: const Icon(Icons.add),
-      ),
-      appBar: AppBar(
-        actions: [
-          IconButton(
-            onPressed: () => _createNewTaskInCategory(context, data),
-            icon: const Icon(Icons.add),
+    return PopScope(
+      onPopInvoked: (didPop) async {
+        context.read<TaskBloc>().add(ResetTasksEvent());
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            IconButton(
+              onPressed: () => _createNewTaskInCategory(context, data),
+              icon: const Icon(Icons.add),
+            ),
+          ],
+        ),
+        body: Center(
+          child: BlocBuilder<TaskBloc, TaskState>(
+            builder: (context, state) {
+              if (state is TasksLoading) {
+                return const CircularProgressIndicator();
+              } else if (state is TasksLoaded) {
+                List<TaskData> tasks = state.tasks;
+                return TasksInCategoriesListWidget(tasks: tasks);
+              } else if (state is TasksError) {
+                return Text('Произошла ошибка: ${state.message}');
+              } else {
+                return const Text('Начальное состояние блока');
+              }
+            },
           ),
-        ],
-      ),
-      body: Center(
-        child: BlocBuilder<TaskBloc, TaskState>(
-          builder: (context, state) {
-            if (state is TasksLoading) {
-              return const CircularProgressIndicator();
-            } else if (state is TasksLoaded) {
-              List<TaskData> tasks = state.tasks;
-              return TasksInCategoriesListWidget(tasks: tasks);
-            } else if (state is TasksError) {
-              return Text('Произошла ошибка: ${state.message}');
-            } else {
-              return const Text('Начальное состояние блока');
-            }
-          },
         ),
       ),
     );

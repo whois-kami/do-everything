@@ -12,12 +12,31 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   final AppDatabase database;
 
   TaskBloc(this.database) : super(const TaskInitialState()) {
+    on<ResetTasksEvent>(_onResetTasks);
     on<CreateTaskInCategoryEvent>(_onCreateTaskInCategory);
     on<LoadTasksByCategoryEvent>(_onLoadTasksByCategory);
     on<LoadDoneTasksEvent>(_onLoadDoneTaks);
+    on<GetAllTasksEvent>(_onGetAllTasksEvent);
     on<LoadDeletedTasksEvent>(_onLoadDeletedTaks);
     on<LoadFavoriteTasksEvent>(_onLoadFavoriteTaks);
     on<UpdateTaskEvent>(_onUpdateTask);
+    on<LoadQueryLikeTasksEvent>(_onLoadQueryLikeTasks);
+  }
+
+  Future<void> _onGetAllTasksEvent(
+      GetAllTasksEvent event, Emitter<TaskState> emit) async {
+    emit(TasksLoading());
+    try {
+      final tasks = await database.getAllTasks();
+      emit(TasksLoaded(tasks));
+    } catch (e) {
+      emit(TasksError(e.toString()));
+    }
+  }
+
+  Future<void> _onResetTasks(
+      ResetTasksEvent event, Emitter<TaskState> emit) async {
+    emit(const TasksLoaded([]));
   }
 
   Future<void> _onCreateTaskInCategory(
@@ -93,21 +112,36 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         isDeleted: event.isDeleted,
         isFavorite: event.isFavorite,
       );
-      if (event.isDone == false) {
-        final tasks = await database.getDoneTasks();
-        emit(TasksLoaded(tasks));
-      } else if (event.isDeleted == false) {
-        final tasks = await database.getDeletedTasks();
-        emit(TasksLoaded(tasks));
-      } else if (event.isFavorite == false) {
-        final tasks = await database.getFavoriteTasks();
-        emit(TasksLoaded(tasks));
-      } else {
-        final tasks = await database.getTasksByCategory(event.categoryId);
-        emit(TasksLoaded(tasks));
+      // PageId was added to understand what page we are on.
+      // To load only tasks where we are, with no reactions to changes.
+      emit(TasksLoading());
+      switch (event.pageId) {
+        case 0:
+          final tasks = await database.getDeletedTasks();
+          emit(TasksLoaded(tasks));
+        case 1:
+          final tasks = await database.getTasksByCategory(event.categoryId);
+          emit(TasksLoaded(tasks));
+        case 2:
+          final tasks = await database.getDoneTasks();
+          emit(TasksLoaded(tasks));
+        case 3:
+          final tasks = await database.getFavoriteTasks();
+          emit(TasksLoaded(tasks));
       }
     } catch (e) {
       TasksError(e.toString());
+    }
+  }
+
+  Future<void> _onLoadQueryLikeTasks(
+      LoadQueryLikeTasksEvent event, Emitter<TaskState> emit) async {
+    emit(TasksLoading());
+    try {
+      final tasks = await database.getTasksByQuery(event.query);
+      emit(TasksLoaded(tasks));
+    } catch (e) {
+      emit(TasksError(e.toString()));
     }
   }
 }
