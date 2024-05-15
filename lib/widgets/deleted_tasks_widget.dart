@@ -1,137 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:todo_v2/blocs/blocs_export.dart';
+import 'package:todo_v2/common/app_constants.dart';
+import 'package:todo_v2/common/app_theme.dart';
 import 'package:todo_v2/data/local/db/app_db.dart';
-import 'package:todo_v2/screens/change_task_screen.dart';
+import 'package:todo_v2/screens/task_info_screen.dart';
 
-enum TaskActions {
-  edit,
-  addToBookmarks,
-  restore,
-}
-
-class DeletedTasksListWidget extends StatefulWidget {
+class DeletedTasksWidget extends StatefulWidget {
   final List<TaskData> deletedTasks;
-  const DeletedTasksListWidget({
+  const DeletedTasksWidget({
     super.key,
     required this.deletedTasks,
   });
 
   @override
-  State<DeletedTasksListWidget> createState() => _DeletedTasksListWidgetState();
+  State<DeletedTasksWidget> createState() => _DeletedTasksWidgetState();
 }
 
-class _DeletedTasksListWidgetState extends State<DeletedTasksListWidget> {
-  void _changeTaskInCategory({required TaskData task}) {
-    showModalBottomSheet(
-      context: (context),
-      builder: (context) {
-        return SingleChildScrollView(
-          child: ChangeTaskScreen(
-            task: task,
-          ),
-        );
-      },
-    );
-  }
-
+class _DeletedTasksWidgetState extends State<DeletedTasksWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Expanded(
-          child: ListView.builder(
+          child: ListView.separated(
+            padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width % 20,
+                vertical: MediaQuery.of(context).size.width % 20),
             itemCount: widget.deletedTasks.length,
+            separatorBuilder: (context, index) => const SizedBox(height: 10),
             itemBuilder: (BuildContext context, int index) {
               TaskData task = widget.deletedTasks[index];
-              return ListTile(
-                title: Text(task.title),
-                subtitle: Text('Deleted from: ${task.categoryName}'),
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text("Название задачи: ${task.title}"),
-                      content: Text("Описание задачи: ${task.description}"),
-                    );
-                  },
-                ),
-                leading: task.isFavorite
-                    ? const Icon(Icons.star)
-                    : const Icon(Icons.star_outline),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(
-                      value: task.isDone,
-                      onChanged: (bool? newValue) => {
-                        if (newValue != null)
-                          {
-                            context.read<TaskBloc>().add(
-                                  UpdateTaskEvent(
-                                    pageId: 0,
-                                    categoryId: task.categoryId,
-                                    taskId: task.id,
-                                    isDone: newValue,
-                                  ),
-                                )
-                          },
-                      },
-                    ),
-                    PopupMenuButton<TaskActions>(
-                      itemBuilder: (context) {
-                        return [
-                          PopupMenuItem(
-                            value: TaskActions.edit,
-                            onTap: () => _changeTaskInCategory(task: task),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.edit),
-                                SizedBox(width: 5),
-                                Text('Edit'),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: TaskActions.addToBookmarks,
-                            onTap: () => context.read<TaskBloc>().add(
-                                  UpdateTaskEvent(
-                                      pageId: 0,
-                                      taskId: task.id,
-                                      categoryId: task.categoryId,
-                                      isFavorite: !task.isFavorite),
-                                ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.bookmark_add_outlined),
-                                SizedBox(width: 5),
-                                Text('Add to bookmarks'),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: TaskActions.restore,
-                            onTap: () => context.read<TaskBloc>().add(
-                                  UpdateTaskEvent(
-                                      pageId: 0,
-                                      taskId: task.id,
-                                      categoryId: task.categoryId,
-                                      isDeleted: !task.isDeleted),
-                                ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.delete),
-                                SizedBox(width: 5),
-                                Text('Restore'),
-                              ],
-                            ),
-                          ),
-                        ];
-                      },
-                    )
-                  ],
+              String formattedDate = DateFormat('d MMMM, EEEE HH:mm', 'ru_RU')
+                  .format(task.createdAt);
+              return InkWell(
+                onLongPress: () => context
+                    .read<TaskBloc>()
+                    .add(DeleteTaskEvent(taskId: task.id)),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => TaskInfoScreen(
+                          taskId: task.id,
+                        ))),
+                child: Container(
+                  padding: const EdgeInsets.all(13),
+                  height: 100,
+                  width: 200,
+                  decoration: AppConstants.boxDecoration,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Flexible(
+                              flex: 1,
+                              child: Text(
+                                task.title,
+                                style: AppTheme
+                                    .favoriteTextTheme.textTheme.displayLarge,
+                              )),
+                          Flexible(
+                              flex: 2,
+                              child: Text(
+                                'Created at: $formattedDate',
+                                style: AppTheme
+                                    .favoriteTextTheme.textTheme.displaySmall,
+                              ))
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        maxLines: 1,
+                        'Deleted from: ${task.categoryName}',
+                        style:
+                            AppTheme.favoriteTextTheme.textTheme.displayMedium,
+                      ),
+                    ],
+                  ),
                 ),
               );
             },

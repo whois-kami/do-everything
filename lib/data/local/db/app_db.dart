@@ -24,6 +24,8 @@ class Task extends Table {
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   BoolColumn get isFavorite => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get completedAt =>
+      dateTime().withDefault(Constant(DateTime(2000, 1, 1)))();
 }
 
 @DriftDatabase(tables: [TaskCategories, Task])
@@ -118,10 +120,18 @@ class AppDatabase extends _$AppDatabase {
       bool? isDeleted,
       bool? isFavorite,
       String? title,
-      String? description}) async {
+      String? description,
+      DateTime? completedAt}) async {
     var updateBuilder = const TaskCompanion();
     if (isDone != null) {
       updateBuilder = updateBuilder.copyWith(isDone: Value(isDone));
+      if (isDone == true && completedAt == null) {
+        updateBuilder =
+            updateBuilder.copyWith(completedAt: Value(DateTime.now()));
+      } else if (isDone == false) {
+        updateBuilder =
+            updateBuilder.copyWith(completedAt: const Value.absent());
+      }
     }
     if (isDeleted != null) {
       updateBuilder = updateBuilder.copyWith(isDeleted: Value(isDeleted));
@@ -135,6 +145,7 @@ class AppDatabase extends _$AppDatabase {
     if (description != null) {
       updateBuilder = updateBuilder.copyWith(description: Value(description));
     }
+
     if (updateBuilder != const TaskCompanion()) {
       await (update(task)..where((t) => t.id.equals(taskId)))
           .write(updateBuilder);
@@ -144,11 +155,19 @@ class AppDatabase extends _$AppDatabase {
   Future<List<TaskData>> getTasksByQuery(String query) async {
     final lowercaseQuery = query.toLowerCase();
     if (query.isEmpty) {
-      return (select(task).get());
+      return [];
     } else {
       return (select(task)
             ..where((t) => t.title.lower().like('%$lowercaseQuery%')))
           .get();
     }
+  }
+
+  Future<TaskData> getTaskById(int id) {
+    return (select(task)..where((t) => t.id.equals(id))).getSingle();
+  }
+
+  Future<void> deleteTask(int id) {
+    return (delete(task)..where((t) => t.id.equals(id))).go();
   }
 }

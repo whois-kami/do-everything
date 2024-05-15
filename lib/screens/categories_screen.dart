@@ -33,28 +33,35 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             SizedBox(
               height: 45,
               child: TextField(
+                style: const TextStyle(fontSize: 15),
                 controller: _queryController,
                 onChanged: (value) {
                   context.read<TaskBloc>().add(
                       LoadQueryLikeTasksEvent(query: _queryController.text));
                 },
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.only(top: 10),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: 25,
-                  ),
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.search,
+                      size: 25,
+                      color: Theme.of(context)
+                          .inputDecorationTheme
+                          .prefixIconColor),
+                  hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
                   hintText: 'Search tasks yopta',
-                  isDense: true,
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
-                  enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10))),
+                  contentPadding:
+                      Theme.of(context).inputDecorationTheme.contentPadding,
+                  border: Theme.of(context).inputDecorationTheme.border,
+                  focusedBorder:
+                      Theme.of(context).inputDecorationTheme.focusedBorder,
+                  enabledBorder:
+                      Theme.of(context).inputDecorationTheme.enabledBorder,
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            const Text('Categories'),
+            Text(
+              'Categories',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: 20),
             SizedBox(
               height: 100,

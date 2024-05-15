@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:todo_v2/blocs/blocs_export.dart';
+import 'package:todo_v2/common/app_constants.dart';
+import 'package:todo_v2/common/app_theme.dart';
 import 'package:todo_v2/data/local/db/app_db.dart';
 
 class ChangeTaskScreen extends StatefulWidget {
   final TaskData task;
+  final bool? isUpdate;
 
   const ChangeTaskScreen({
     super.key,
     required this.task,
+    this.isUpdate,
   });
 
   @override
@@ -28,6 +32,7 @@ class _ChangeTaskScreenState extends State<ChangeTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      decoration: AppConstants.addNewTaskBoxDecoration,
       padding:
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
@@ -46,17 +51,42 @@ class _ChangeTaskScreenState extends State<ChangeTaskScreen> {
                   TextField(
                     controller: _titleController,
                     autofocus: true,
-                    decoration: const InputDecoration(
-                      label: Text('New title:'),
-                      border: OutlineInputBorder(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontSize: 19.0,
+                    ),
+                    decoration: InputDecoration(
+                      label: const Text(
+                        'Title',
+                      ),
+                      border:
+                          AppTheme.textFieldTheme.inputDecorationTheme.border,
+                      isDense:
+                          AppTheme.textFieldTheme.inputDecorationTheme.isDense,
+                      contentPadding: AppTheme
+                          .textFieldTheme.inputDecorationTheme.contentPadding,
                     ),
                   ),
+                  const SizedBox(height: 15),
                   TextField(
                     controller: _descController,
                     autofocus: true,
-                    decoration: const InputDecoration(
-                      label: Text('New description:'),
-                      border: OutlineInputBorder(),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontSize: 19.0,
+                    ),
+                    decoration: InputDecoration(
+                      label: const Text(
+                        'Title',
+                      ),
+                      border:
+                          AppTheme.textFieldTheme.inputDecorationTheme.border,
+                      isDense:
+                          AppTheme.textFieldTheme.inputDecorationTheme.isDense,
+                      contentPadding: AppTheme
+                          .textFieldTheme.inputDecorationTheme.contentPadding,
                     ),
                   ),
                 ],
@@ -76,6 +106,7 @@ class _ChangeTaskScreenState extends State<ChangeTaskScreen> {
                         categoryId: widget.task.categoryId,
                         title: _titleController.text,
                         description: _descController.text));
+
                     _titleController.clear();
                     _descController.clear();
                     Navigator.of(context).pop();

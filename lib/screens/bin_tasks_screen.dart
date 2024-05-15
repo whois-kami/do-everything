@@ -40,20 +40,24 @@ class _BinTasksScreenState extends State<BinTasksScreen> {
         drawer: Drawer(
           child: ListView(
             children: [
-              const DrawerHeader(
+              DrawerHeader(
                 child: Center(
                   child: Text(
                     'Made with soul',
-                    style: TextStyle(fontSize: 35),
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
               ),
               ListTile(
-                title: const Text(
+                title: Text(
                   'Home',
-                  style: TextStyle(fontSize: 20),
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                leading: const Icon(Icons.home),
+                leading: Icon(
+                  Icons.home,
+                  size: Theme.of(context).iconTheme.size,
+                  color: Theme.of(context).iconTheme.color,
+                ),
                 onTap: () => Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute<void>(
@@ -69,7 +73,7 @@ class _BinTasksScreenState extends State<BinTasksScreen> {
             builder: (context, state) {
               if (state is TasksLoaded) {
                 List<TaskData> tasks = state.tasks;
-                return DeletedTasksListWidget(deletedTasks: tasks);
+                return DeletedTasksWidget(deletedTasks: tasks);
               } else if (state is TasksError) {
                 return Text('Произошла ошибка: ${state.message}');
               } else {

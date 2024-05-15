@@ -44,22 +44,27 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       drawer: Drawer(
+        backgroundColor: Theme.of(context).drawerTheme.backgroundColor,
         child: ListView(
           children: [
-            const DrawerHeader(
+            DrawerHeader(
               child: Center(
                 child: Text(
                   'Made with soul',
-                  style: TextStyle(fontSize: 35),
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
               ),
             ),
             ListTile(
-              title: const Text(
+              title: Text(
                 'Bin',
-                style: TextStyle(fontSize: 20),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
-              leading: const Icon(Icons.delete_outline_outlined),
+              leading: Icon(
+                Icons.delete_outline_outlined,
+                size: Theme.of(context).iconTheme.size,
+                color: Theme.of(context).iconTheme.color,
+              ),
               onTap: () => Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute<void>(
@@ -76,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: GNav(
           gap: 15,
           onTabChange: (index) => onChangeScreen(index),
+          textStyle: Theme.of(context).textTheme.titleSmall,
           tabs: const [
             GButton(
               icon: Icons.home,

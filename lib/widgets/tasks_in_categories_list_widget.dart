@@ -1,16 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
-import 'package:todo_v2/blocs/blocs_export.dart';
+import 'package:todo_v2/common/app_constants.dart';
 import 'package:todo_v2/data/local/db/app_db.dart';
-import 'package:todo_v2/screens/change_task_screen.dart';
-
-enum TaskActions {
-  edit,
-  addToBookmarks,
-  delete,
-}
+import 'package:todo_v2/screens/task_info_screen.dart';
 
 class TasksInCategoriesListWidget extends StatefulWidget {
   final List<TaskData> tasks;
@@ -26,19 +18,6 @@ class TasksInCategoriesListWidget extends StatefulWidget {
 
 class _TasksInCategoriesListWidgetState
     extends State<TasksInCategoriesListWidget> {
-  void _changeTaskInCategory({required TaskData task}) {
-    showModalBottomSheet(
-      context: (context),
-      builder: (context) {
-        return SingleChildScrollView(
-          child: ChangeTaskScreen(
-            task: task,
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -55,20 +34,15 @@ class _TasksInCategoriesListWidgetState
               String formattedDate = DateFormat('d MMMM, EEEE HH:mm', 'ru_RU')
                   .format(task.createdAt);
               return InkWell(
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text("Название задачи: ${task.title}"),
-                      content: Text("Описание задачи: ${task.description}"),
-                    );
-                  },
-                ),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => TaskInfoScreen(
+                          taskId: task.id,
+                        ))),
                 child: Container(
-                  padding: EdgeInsets.all(13),
+                  padding: const EdgeInsets.all(13),
                   height: 100,
                   width: 200,
-                  decoration: BoxDecoration(color: Colors.red),
+                  decoration: AppConstants.boxDecoration,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -77,19 +51,23 @@ class _TasksInCategoriesListWidgetState
                         children: [
                           Flexible(
                               flex: 1,
-                              child: Text(task.title,
-                                  overflow: TextOverflow.ellipsis)),
+                              child: Text(
+                                task.title,
+                                style: Theme.of(context).textTheme.displayLarge,
+                              )),
                           Flexible(
                               flex: 2,
-                              child: Text(formattedDate,
-                                  overflow: TextOverflow.ellipsis))
+                              child: Text(
+                                formattedDate,
+                                style: Theme.of(context).textTheme.displaySmall,
+                              ))
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       Text(
-                        maxLines: 2,
+                        maxLines: 1,
                         task.description,
-                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.displayMedium,
                       ),
                     ],
                   ),
@@ -102,90 +80,3 @@ class _TasksInCategoriesListWidgetState
     );
   }
 }
-
-
-
-// leading: task.isFavorite
-//                       ? const Icon(Icons.star)
-//                       : const Icon(Icons.star_outline),
-
-//  Row(
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     Checkbox(
-//                       value: task.isDone,
-//                       onChanged: (bool? newValue) => {
-//                         if (newValue != null)
-//                           {
-//                             context.read<TaskBloc>().add(
-//                                   UpdateTaskEvent(
-//                                     pageId: 1,
-//                                     categoryId: task.categoryId,
-//                                     taskId: task.id,
-//                                     isDone: newValue,
-//                                   ),
-//                                 )
-//                           },
-//                       },
-//                     ),
-                  
-//                   ],
-//                 ),
-
-
-
-
-  // PopupMenuButton<TaskActions>(
-  //                     itemBuilder: (context) {
-  //                       return [
-  //                         PopupMenuItem(
-  //                           value: TaskActions.edit,
-  //                           onTap: () => _changeTaskInCategory(task: task),
-  //                           child: const Row(
-  //                             mainAxisSize: MainAxisSize.min,
-  //                             children: [
-  //                               Icon(Icons.edit),
-  //                               SizedBox(width: 5),
-  //                               Text('Edit'),
-  //                             ],
-  //                           ),
-  //                         ),
-  //                         PopupMenuItem(
-  //                           value: TaskActions.addToBookmarks,
-  //                           onTap: () => context.read<TaskBloc>().add(
-  //                                 UpdateTaskEvent(
-  //                                     pageId: 1,
-  //                                     taskId: task.id,
-  //                                     categoryId: task.categoryId,
-  //                                     isFavorite: !task.isFavorite),
-  //                               ),
-  //                           child: const Row(
-  //                             mainAxisSize: MainAxisSize.min,
-  //                             children: [
-  //                               Icon(Icons.bookmark_add_outlined),
-  //                               SizedBox(width: 5),
-  //                               Text('Add to bookmarks'),
-  //                             ],
-  //                           ),
-  //                         ),
-  //                         PopupMenuItem(
-  //                           value: TaskActions.delete,
-  //                           onTap: () => context.read<TaskBloc>().add(
-  //                                 UpdateTaskEvent(
-  //                                     pageId: 1,
-  //                                     taskId: task.id,
-  //                                     categoryId: task.categoryId,
-  //                                     isDeleted: !task.isDeleted),
-  //                               ),
-  //                           child: const Row(
-  //                             mainAxisSize: MainAxisSize.min,
-  //                             children: [
-  //                               Icon(Icons.delete),
-  //                               SizedBox(width: 5),
-  //                               Text('Delete'),
-  //                             ],
-  //                           ),
-  //                         ),
-  //                       ];
-  //                     },
-  //                   )

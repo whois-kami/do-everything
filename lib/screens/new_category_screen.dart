@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo_v2/blocs/blocs_export.dart';
+import 'package:todo_v2/common/app_constants.dart';
+import 'package:todo_v2/common/app_theme.dart';
 
 class AddNewCategoryScreen extends StatefulWidget {
   const AddNewCategoryScreen({super.key});
@@ -18,6 +20,7 @@ class _AddNewCategoryScreenState extends State<AddNewCategoryScreen> {
           EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         padding: const EdgeInsets.all(20),
+        decoration: AppConstants.addNewTaskBoxDecoration,
         child: Column(
           children: [
             const Text(
@@ -30,14 +33,23 @@ class _AddNewCategoryScreenState extends State<AddNewCategoryScreen> {
               child: TextField(
                 controller: titleController,
                 autofocus: true,
-                decoration: const InputDecoration(
-                  label: Text('Title'),
-                  border: OutlineInputBorder(),
+                style: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  color: Colors.white,
+                  fontSize: 19.0,
                 ),
+                decoration: InputDecoration(
+                    label: const Text(
+                      'Description',
+                    ),
+                    border: AppTheme.textFieldTheme.inputDecorationTheme.border,
+                    isDense:
+                        AppTheme.textFieldTheme.inputDecorationTheme.isDense,
+                    contentPadding: AppTheme
+                        .textFieldTheme.inputDecorationTheme.contentPadding),
               ),
             ),
             const SizedBox(height: 10),
-    
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -62,6 +74,4 @@ class _AddNewCategoryScreenState extends State<AddNewCategoryScreen> {
       ),
     );
   }
-
-
 }

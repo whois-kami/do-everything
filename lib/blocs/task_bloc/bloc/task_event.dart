@@ -10,8 +10,18 @@ class TaskEvent extends Equatable {
 
 class ResetTasksEvent extends TaskEvent {}
 
+
+
 class GetAllTasksEvent extends TaskEvent {}
 
+class DeleteTaskEvent extends TaskEvent {
+  final int taskId;
+  const DeleteTaskEvent({
+    required this.taskId,
+  });
+   @override
+  List<Object> get props => [taskId];
+}
 
 class LoadTasksByCategoryEvent extends TaskEvent {
   final int categoryId;
@@ -65,6 +75,8 @@ class LoadQueryLikeTasksEvent extends TaskEvent {
   List<Object> get props => [query];
 }
 
+
+
 class UpdateTaskEvent extends TaskEvent {
   final int taskId;
   final int categoryId;
@@ -74,6 +86,7 @@ class UpdateTaskEvent extends TaskEvent {
   final bool? isDone;
   final bool? isDeleted;
   final bool? isFavorite;
+  final DateTime? completedAt;
 
   const UpdateTaskEvent({
     required this.taskId,
@@ -84,6 +97,7 @@ class UpdateTaskEvent extends TaskEvent {
     this.isDone,
     this.isDeleted,
     this.isFavorite,
+    this.completedAt
   });
   @override
   List<Object> get props => [

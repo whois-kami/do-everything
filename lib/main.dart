@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:todo_v2/common/app_colors.dart';
+import 'package:todo_v2/common/app_theme.dart';
 import 'package:todo_v2/data/local/db/app_db.dart';
 import 'package:todo_v2/screens/home_screen.dart';
 import 'package:todo_v2/screens/tasks_in_categories_screen.dart';
@@ -29,7 +29,7 @@ class TodoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: AppColorStyles.themeData,
+      theme: AppTheme.themeData,
       routes: {
         '/categories/tasks': (context) => const TaskInCategoriesScreen(),
       },

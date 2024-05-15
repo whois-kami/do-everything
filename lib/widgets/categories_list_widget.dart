@@ -24,15 +24,16 @@ class CategoriesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<TaskCategory> reversedCategories = categories.reversed.toList();
     return ListView.separated(
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       // for add new cagegory button
-      itemCount: reversedCategories.length + 1,
+      itemCount: categories.length + 1,
       scrollDirection: Axis.horizontal,
       separatorBuilder: (context, index) => const SizedBox(width: 20),
       itemBuilder: (context, index) {
-        if (index < reversedCategories.length) {
-          TaskCategory category = reversedCategories[index];
+        int displayIndex = categories.length - index - 1;
+        if (index < categories.length) {
+          TaskCategory category = categories[displayIndex];
           return Column(
             children: [
               InkWell(
@@ -46,12 +47,19 @@ class CategoriesList extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    color: Colors.red.shade50.withOpacity(0.3),
+                    color: Colors.white.withOpacity(0.1),
                   ),
-                  child: Center(child: Text(category.name[0])),
+                  child: Center(
+                      child: Text(
+                    category.name[0],
+                    style: Theme.of(context).textTheme.titleMedium,
+                  )),
                 ),
               ),
-              Text(category.name),
+              Text(
+                category.name,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
             ],
           );
         } else {
@@ -65,11 +73,15 @@ class CategoriesList extends StatelessWidget {
                   height: 40,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.all(Radius.circular(10)),
-                    color: Colors.grey.withOpacity(0.3),
+                    color: Colors.white.withOpacity(0.1),
                   ),
-                  child: const Icon(Icons.add, color: Colors.white),
+                  child: IconTheme(
+                    data: Theme.of(context).iconTheme,
+                    child: const Icon(Icons.add),
+                  ),
                 ),
               ),
+              Text('add', style: Theme.of(context).textTheme.titleSmall)
             ],
           );
         }
